@@ -47,18 +47,30 @@ app.get("/api/:year/:month/:day", (request, response) => {
   }
 });
 
+app.get("/api/", (_, response) => {
+  const d = new Date();
+  response.json({
+    unix: d.getTime(),
+    utc: d.toUTCString(),
+  });
+});
+
 app.get("/api/:unix", (request, response) => {
   let gmt = null;
 
   if (request.params.unix.includes("-")) {
     gmt = new Date(request.params.unix);
+  } else if (!isNaN(parseInt(Number(request.params.unix)))) {
+    gmt = new Date(Number(request.params.unix));
   } else {
-    gmt = new Date(Number(request.params.unix) * 1000);
+    gmt = new Date(request.params.unix);
   }
+
+  console.log(request.params.unix);
 
   if (gmt instanceof Date && isFinite(gmt)) {
     response.json({
-      unix: Number(request.params.unix),
+      unix: gmt.getTime(),
       utc: gmt.toUTCString(),
     });
   } else {
